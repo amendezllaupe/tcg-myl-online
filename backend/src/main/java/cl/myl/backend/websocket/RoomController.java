@@ -6,6 +6,7 @@ import org.springframework.messaging.handler.annotation.MessageMapping;
 import org.springframework.messaging.handler.annotation.Payload;
 import org.springframework.messaging.handler.annotation.SendTo;
 import org.springframework.messaging.simp.SimpMessageHeaderAccessor;
+import org.springframework.messaging.simp.annotation.SendToUser;
 import org.springframework.stereotype.Controller;
 
 import java.util.Map;
@@ -24,39 +25,41 @@ public class RoomController {
     }
 
     /**
-     * Create a new game room
-     * Message: { "playerName": "Player1" }
-     * Response: { "roomId", "roomCode", "hostPlayerName", "status" }
+     * Create a new room - reply only to the sender
      */
     @MessageMapping("/room/create")
-    @SendTo("/topic/room/created")
-    public GameRoom createRoom(@Payload Map<String, String> message, SimpMessageHeaderAccessor headerAccessor) {
+    @SendToUser("/queue/room/created")
+    public Map<String, Object> createRoom(@Payload Map<String, String> message, SimpMessageHeaderAccessor headerAccessor) {
         String playerName = message.getOrDefault("playerName", "Player");
-        String playerId = getOrCreatePlayerId(headerAccessor);
+        String clientId = message.getOrDefault("clientId", headerAccessor.getSessionId());
         
-        GameRoom room = roomService.createRoom(playerId, playerName);
+        GameRoom room = roomService.createRoom(clientId, playerName);
         
         // Store room ID in session
         headerAccessor.getSessionAttributes().put("roomId", room.getRoomId());
-        headerAccessor.getSessionAttributes().put("playerId", playerId);
+        headerAccessor.getSessionAttributes().put("clientId", clientId);
         headerAccessor.getSessionAttributes().put("isHost", true);
         
-        return room;
+        return Map.of(
+            "roomId", room.getRoomId(),
+            "roomCode", room.getRoomCode(),
+            "hostPlayerName", room.getHostPlayerName(),
+            "status", room.getStatus().name(),
+            "isHost", true
+        );
     }
 
     /**
-     * Join an existing room
-     * Message: { "roomCode": "ABC123", "playerName": "Player2" }
-     * Response: { "roomId", "roomCode", "hostPlayerName", "guestPlayerName", "status" }
+     * Join an existing room - reply to both sender and notify host
      */
     @MessageMapping("/room/join")
     @SendTo("/topic/room/joined")
     public Map<String, Object> joinRoom(@Payload Map<String, String> message, SimpMessageHeaderAccessor headerAccessor) {
         String roomCode = message.get("roomCode");
         String playerName = message.getOrDefault("playerName", "Player");
-        String playerId = getOrCreatePlayerId(headerAccessor);
+        String clientId = message.getOrDefault("clientId", headerAccessor.getSessionId());
         
-        GameRoom room = roomService.joinRoom(roomCode, playerId, playerName);
+        GameRoom room = roomService.joinRoom(roomCode, clientId, playerName);
         
         if (room == null) {
             return Map.of("error", "Room not found or full");
@@ -64,15 +67,17 @@ public class RoomController {
         
         // Store in session
         headerAccessor.getSessionAttributes().put("roomId", room.getRoomId());
-        headerAccessor.getSessionAttributes().put("playerId", playerId);
+        headerAccessor.getSessionAttributes().put("clientId", clientId);
         headerAccessor.getSessionAttributes().put("isHost", false);
         
+        // Send to ALL subscribers (both host and guest) - the guest knows they're not host
         return Map.of(
             "roomId", room.getRoomId(),
             "roomCode", room.getRoomCode(),
             "hostPlayerName", room.getHostPlayerName(),
             "guestPlayerName", room.getGuestPlayerName(),
-            "status", room.getStatus().name()
+            "status", room.getStatus().name(),
+            "isHost", false
         );
     }
 

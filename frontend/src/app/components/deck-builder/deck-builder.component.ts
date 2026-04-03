@@ -2,6 +2,8 @@ import { Component, inject, signal, computed } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
+import { ButtonModule } from 'primeng/button';
+import { InputTextModule } from 'primeng/inputtext';
 import { CardService } from '../../services/card.service';
 import { DeckService } from '../../services/deck.service';
 import { Card } from '../../models/game.model';
@@ -9,7 +11,7 @@ import { Card } from '../../models/game.model';
 @Component({
   selector: 'app-deck-builder',
   standalone: true,
-  imports: [CommonModule, FormsModule],
+  imports: [CommonModule, FormsModule, ButtonModule, InputTextModule],
   templateUrl: './deck-builder.component.html',
   styleUrl: './deck-builder.component.scss'
 })

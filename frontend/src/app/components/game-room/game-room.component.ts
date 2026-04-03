@@ -2,13 +2,15 @@ import { Component, inject, signal, OnInit, OnDestroy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
+import { ButtonModule } from 'primeng/button';
+import { InputTextModule } from 'primeng/inputtext';
 import { WebSocketService } from '../../services/websocket.service';
 import { DeckService } from '../../services/deck.service';
 
 @Component({
   selector: 'app-game-room',
   standalone: true,
-  imports: [CommonModule, FormsModule],
+  imports: [CommonModule, FormsModule, ButtonModule, InputTextModule],
   templateUrl: './game-room.component.html',
   styleUrl: './game-room.component.scss'
 })
