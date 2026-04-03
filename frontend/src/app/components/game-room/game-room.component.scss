@@ -1,0 +1,279 @@
+.game-room {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 100vh;
+  background: #1a1a2e;
+  color: #fff;
+  padding: 2rem;
+
+  h1 {
+    font-size: 2rem;
+    color: #e94560;
+    margin-bottom: 0.5rem;
+  }
+
+  .subtitle {
+    color: #888;
+    margin-bottom: 2rem;
+  }
+}
+
+.home-view {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  max-width: 500px;
+  width: 100%;
+
+  .player-name-section {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+    width: 100%;
+    margin-bottom: 2rem;
+
+    label {
+      font-size: 0.9rem;
+      color: #aaa;
+    }
+
+    input {
+      width: 100%;
+      padding: 0.75rem;
+      font-size: 1rem;
+      background: #0f3460;
+      border: 1px solid #16213e;
+      color: #fff;
+      border-radius: 8px;
+
+      &::placeholder {
+        color: #666;
+      }
+
+      &:focus {
+        border-color: #e94560;
+        outline: none;
+      }
+    }
+  }
+
+  .actions {
+    display: flex;
+    gap: 2rem;
+    width: 100%;
+    align-items: flex-start;
+
+    .create-section,
+    .join-section {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      gap: 0.75rem;
+      padding: 1.5rem;
+      background: #16213e;
+      border-radius: 12px;
+      text-align: center;
+
+      h3 {
+        margin: 0;
+        font-size: 1.1rem;
+        color: #e94560;
+      }
+
+      p {
+        margin: 0;
+        font-size: 0.85rem;
+        color: #888;
+      }
+
+      .code-input {
+        width: 100%;
+        padding: 0.5rem;
+        font-size: 1.2rem;
+        text-align: center;
+        letter-spacing: 0.3rem;
+        text-transform: uppercase;
+        background: #0f3460;
+        border: 1px solid #16213e;
+        color: #fff;
+        border-radius: 6px;
+      }
+    }
+
+    .divider {
+      display: flex;
+      align-items: center;
+      color: #666;
+      font-size: 0.9rem;
+      padding-top: 2rem;
+    }
+  }
+
+  .connection-status {
+    margin-top: 2rem;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-size: 0.85rem;
+    color: #888;
+
+    .status-indicator {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: #e74c3c;
+
+      &.connected {
+        background: #27ae60;
+      }
+    }
+  }
+}
+
+.waiting-view,
+.lobby-view,
+.error-view {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1.5rem;
+}
+
+.waiting-view {
+  .room-code-display {
+    text-align: center;
+
+    .label {
+      font-size: 0.9rem;
+      color: #888;
+      margin-bottom: 0.5rem;
+    }
+
+    .code {
+      font-size: 3rem;
+      font-weight: bold;
+      letter-spacing: 0.5rem;
+      color: #ffd700;
+      background: #0f3460;
+      padding: 1rem 2rem;
+      border-radius: 12px;
+    }
+  }
+
+  .instruction {
+    color: #888;
+  }
+
+  .waiting-animation {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 1rem;
+    padding: 2rem;
+
+    .pulse {
+      width: 60px;
+      height: 60px;
+      border-radius: 50%;
+      background: #e94560;
+      animation: pulse 1.5s ease-in-out infinite;
+    }
+
+    p {
+      color: #888;
+    }
+  }
+}
+
+@keyframes pulse {
+  0%, 100% {
+    transform: scale(1);
+    opacity: 1;
+  }
+  50% {
+    transform: scale(1.2);
+    opacity: 0.7;
+  }
+}
+
+.lobby-view {
+  .players {
+    display: flex;
+    align-items: center;
+    gap: 2rem;
+    padding: 2rem;
+    background: #16213e;
+    border-radius: 12px;
+
+    .player {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 0.5rem;
+
+      .icon {
+        font-size: 2.5rem;
+      }
+
+      .name {
+        font-size: 1.2rem;
+        font-weight: bold;
+      }
+
+      .badge {
+        font-size: 0.75rem;
+        padding: 0.25rem 0.75rem;
+        border-radius: 12px;
+        background: #0f3460;
+        color: #888;
+      }
+    }
+
+    .vs {
+      font-size: 1.5rem;
+      font-weight: bold;
+      color: #e94560;
+    }
+  }
+
+  .room-code-info {
+    color: #888;
+    
+    strong {
+      color: #ffd700;
+      letter-spacing: 0.2rem;
+    }
+  }
+
+  .lobby-actions {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 1rem;
+
+    .start-btn {
+      font-size: 1.2rem;
+      padding: 1rem 3rem;
+    }
+
+    .waiting-start {
+      color: #888;
+      font-style: italic;
+    }
+  }
+
+  .leave-btn {
+    margin-top: 1rem;
+  }
+}
+
+.error-view {
+  .error-message {
+    color: #e74c3c;
+    font-size: 1.1rem;
+    text-align: center;
+    max-width: 400px;
+  }
+}

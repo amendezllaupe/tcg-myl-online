@@ -1,0 +1,90 @@
+<div class="deck-builder">
+  <header class="deck-builder__header">
+    <h1>Constructor de Mazos</h1>
+    <div class="header-actions">
+      <button pButton label="Jugar" (click)="goToRoom()" class="p-button-primary"></button>
+      <button pButton label="Mazo Inicial" (click)="loadStarterDeck()" class="p-button-outlined"></button>
+      <button pButton label="Nuevo Mazo" (click)="newDeck()" class="p-button-secondary"></button>
+      <button pButton label="Guardar Mazo" (click)="saveDeck()" [disabled]="currentDeckSize() === 0" class="p-button-success"></button>
+    </div>
+  </header>
+
+  <div class="deck-builder__content">
+    <!-- Left Panel: Available Cards -->
+    <aside class="cards-panel">
+      <div class="filters">
+        <input 
+          type="text" 
+          pInputText 
+          [value]="searchTerm()" 
+          (input)="searchTerm.set($any($event.target).value)"
+          placeholder="Buscar cartas..."
+          class="search-input"
+        />
+        <div class="type-filters">
+          <button 
+            *ngFor="let opt of filterOptions" 
+            [class.active]="selectedType() === opt.value"
+            (click)="selectedType.set(opt.value)"
+          >
+            {{ opt.label }}
+          </button>
+        </div>
+      </div>
+
+      <div class="cards-grid">
+        @for (card of filteredCards(); track card.id) {
+          <div 
+            class="card-item" 
+            [class]="getTypeClass(card.type)"
+            (click)="addCard(card)"
+          >
+            <div class="card-cost">{{ card.cost }}</div>
+            <div class="card-name">{{ card.name }}</div>
+            <div class="card-type">{{ getTypeIcon(card.type) }}</div>
+            @if (card.strength) {
+              <div class="card-strength">{{ card.strength }}</div>
+            }
+          </div>
+        }
+      </div>
+    </aside>
+
+    <!-- Right Panel: Current Deck -->
+    <aside class="deck-panel">
+      <h2>Tu Mazo ({{ currentDeckSize() }}/50)</h2>
+      
+      <div class="deck-stats">
+        @for (entry of deckStats() | keyvalue; track entry.key) {
+          <div class="stat-item">
+            <span class="stat-label">{{ getTypeIcon(entry.key) }} {{ entry.key }}</span>
+            <span class="stat-value">{{ entry.value }}</span>
+          </div>
+        }
+      </div>
+
+      <div class="deck-cards">
+        @for (card of currentDeckCards(); track $index) {
+          <div 
+            class="deck-card" 
+            [class]="getTypeClass(card.type)"
+            (click)="removeCard($index)"
+          >
+            <div class="card-cost">{{ card.cost }}</div>
+            <div class="card-name">{{ card.name }}</div>
+            @if (card.strength) {
+              <div class="card-strength">{{ card.strength }}</div>
+            }
+          </div>
+        }
+        
+        @if (currentDeckSize() === 0) {
+          <div class="empty-deck">
+            <p>Tu mazo está vacío</p>
+            <p class="hint">Haz clic en las cartas para agregarlas</p>
+          </div>
+        }
+      </div>
+    </aside>
+  </div>
+</div>

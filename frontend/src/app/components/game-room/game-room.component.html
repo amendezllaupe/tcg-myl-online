@@ -1,0 +1,101 @@
+<div class="game-room">
+  @switch (view()) {
+    @case ('home') {
+      <div class="home-view">
+        <h1>Sala de Juego</h1>
+        <p class="subtitle">MyL Online - Mitos y Leyendas TCG</p>
+        
+        <div class="player-name-section">
+          <label>Tu nombre:</label>
+          <input type="text" pInputText [(ngModel)]="playerName" placeholder="Ingresa tu nombre" maxlength="20" />
+        </div>
+        
+        <div class="actions">
+          <div class="create-section">
+            <h3>Crear Nueva Sala</h3>
+            <p>Crea una sala y espera a otro jugador</p>
+            <button pButton label="Crear Sala" (click)="createRoom()" [disabled]="!playerName()" class="p-button-primary"></button>
+          </div>
+          
+          <div class="divider">ó</div>
+          
+          <div class="join-section">
+            <h3>Unirse a Sala</h3>
+            <p>Ingresa el código de la sala</p>
+            <input type="text" pInputText [(ngModel)]="joinCode" placeholder="Código de sala" maxlength="6" class="code-input" />
+            <button pButton label="Unirse" (click)="joinRoom()" [disabled]="!playerName() || !joinCode()" class="p-button-secondary"></button>
+          </div>
+        </div>
+        
+        <div class="connection-status">
+          <span class="status-indicator" [class.connected]="isConnected()"></span>
+          {{ isConnected() ? 'Conectado' : 'Conectando...' }}
+        </div>
+      </div>
+    }
+    
+    @case ('waiting') {
+      <div class="waiting-view">
+        <h1>Esperando Oponente</h1>
+        
+        <div class="room-code-display">
+          <p class="label">Código de tu sala:</p>
+          <div class="code">{{ currentRoom()?.roomCode }}</div>
+        </div>
+        
+        <p class="instruction">Comparte este código con tu oponente</p>
+        
+        <div class="waiting-animation">
+          <div class="pulse"></div>
+          <p>Buscando oponente...</p>
+        </div>
+        
+        <button pButton label="Salir" (click)="leaveRoom()" class="p-button-outlined"></button>
+      </div>
+    }
+    
+    @case ('lobby') {
+      <div class="lobby-view">
+        <h1>Sala Lista</h1>
+        
+        <div class="players">
+          <div class="player host">
+            <span class="icon">👑</span>
+            <span class="name">{{ currentRoom()?.hostPlayerName }}</span>
+            <span class="badge">Anfitrión</span>
+          </div>
+          
+          <div class="vs">VS</div>
+          
+          <div class="player guest">
+            <span class="icon">🎮</span>
+            <span class="name">{{ currentRoom()?.guestPlayerName }}</span>
+            <span class="badge">Oponente</span>
+          </div>
+        </div>
+        
+        <div class="room-code-info">
+          Código: <strong>{{ currentRoom()?.roomCode }}</strong>
+        </div>
+        
+        <div class="lobby-actions">
+          @if (isHost()) {
+            <button pButton label="Iniciar Juego" (click)="startGame()" class="p-button-success start-btn"></button>
+          } @else {
+            <p class="waiting-start">Esperando que el anfitrión inicie el juego...</p>
+          }
+        </div>
+        
+        <button pButton label="Salir" (click)="leaveRoom()" class="p-button-outlined leave-btn"></button>
+      </div>
+    }
+    
+    @case ('error') {
+      <div class="error-view">
+        <h1>Error</h1>
+        <p class="error-message">{{ errorMessage() }}</p>
+        <button pButton label="Reintentar" (click)="retry()" class="p-button-primary"></button>
+      </div>
+    }
+  }
+</div>
