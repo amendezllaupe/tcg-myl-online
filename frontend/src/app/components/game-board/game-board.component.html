@@ -1,0 +1,280 @@
+<div class="game-board">
+  <!-- Header -->
+  <header class="game-header">
+    <div class="turn-info">
+      <span class="turn-label">Turno {{ currentTurn() }}</span>
+      <span class="phase-label">{{ getPhaseName(currentPhase()) }}</span>
+    </div>
+    <div class="room-code">Sala: {{ roomCode() }}</div>
+    <button class="back-btn" (click)="backToRoom()">⬅ Salir</button>
+  </header>
+
+  <div class="board-container">
+    <!-- OPPONENT ZONE (TOP) -->
+    <section class="opponent-zone">
+      <div class="opponent-info">
+        <span class="player-name">{{ opponentName() }}</span>
+        <span class="deck-count">Mazo: {{ opponentDeckCount() }}</span>
+      </div>
+      
+      <!-- Opponent's zones grid - MIRRORED vertically -->
+      <div class="zones-grid opponent">
+        <!-- Row 1 (mirrored from player's row 3): Destierro - Reserva - Apoyo -->
+        <div class="zone destierro-zone">
+          <span class="zone-label">Destierro</span>
+          <div class="cards-row">
+            <div class="empty-slot small"></div>
+          </div>
+        </div>
+
+        <div class="zone gold-reserve-zone">
+          <span class="zone-label">Reserva Oro</span>
+          <div class="cards-row">
+            @for (card of opponentGoldReserve(); track card.id) {
+              <div class="mini-card gold">{{ getTypeIcon(card.type) }}</div>
+            }
+            @if (opponentGoldReserve().length === 0) {
+              <div class="empty-slot"></div>
+            }
+          </div>
+        </div>
+
+        <div class="zone support-line-zone">
+          <span class="zone-label">Apoyo</span>
+          <div class="cards-row">
+            @for (card of opponentSupportLine(); track card.id) {
+              <div class="mini-card" [class]="getTypeClass(card.type)" (click)="selectCard(card)">
+                <div class="card-cost">{{ card.cost }}</div>
+                <div class="card-name">{{ card.name }}</div>
+              </div>
+            }
+            @if (opponentSupportLine().length === 0) {
+              <div class="empty-line-hint">Vacío</div>
+            }
+          </div>
+        </div>
+
+        <!-- Row 2 (mirrored from player's row 2): Cementerio - Castillo - Defensa -->
+        <div class="zone cementerio-zone">
+          <span class="zone-label">Cementerio</span>
+          <div class="cemetery-count">{{ opponentGraveyardCount() }}</div>
+        </div>
+
+        <div class="zone castle-zone">
+          <span class="zone-label">Castillo</span>
+          <div class="deck-stack">
+            <div class="deck-card">?</div>
+            <span class="card-count">{{ opponentDeckCount() }}</span>
+          </div>
+        </div>
+
+        <div class="zone defense-line-zone">
+          <span class="zone-label">Defensa</span>
+          <div class="cards-row">
+            @for (card of opponentDefenseLine(); track card.id) {
+              <div class="mini-card" [class]="getTypeClass(card.type)" (click)="selectCard(card)">
+                <div class="card-cost">{{ card.cost }}</div>
+                <div class="card-name">{{ card.name }}</div>
+                @if (card.strength) {
+                  <div class="card-strength">{{ card.strength }}</div>
+                }
+              </div>
+            }
+            @if (opponentDefenseLine().length === 0) {
+              <div class="empty-line-hint">Vacío</div>
+            }
+          </div>
+        </div>
+
+        <!-- Row 3 (mirrored from player's row 1): Vacio - Pagado - Ataque -->
+        <div class="zone empty-zone">
+          <span class="zone-label"></span>
+        </div>
+
+        <div class="zone gold-paid-zone">
+          <span class="zone-label">Pagado</span>
+          <div class="cards-row">
+            @for (card of opponentGoldPaid(); track card.id) {
+              <div class="mini-card" [class]="getTypeClass(card.type)">
+                <div class="card-cost">{{ card.cost }}</div>
+              </div>
+            }
+            @if (opponentGoldPaid().length === 0) {
+              <div class="empty-slot"></div>
+            }
+          </div>
+        </div>
+
+        <div class="zone attack-line-zone">
+          <span class="zone-label">Ataque</span>
+          <div class="cards-row">
+            @for (card of opponentAttackLine(); track card.id) {
+              <div class="mini-card face-down"></div>
+            }
+            @if (opponentAttackLine().length === 0) {
+              <div class="empty-line-hint">Vacío</div>
+            }
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- DIVIDER -->
+    <div class="vs-divider">VS</div>
+
+    <!-- MY ZONE (BOTTOM) -->
+    <section class="my-zone">
+      <!-- My zones grid -->
+      <div class="zones-grid my">
+        <!-- Row 1: Vacio - Oro Pagado - Ataque -->
+        <div class="zone empty-zone">
+          <span class="zone-label"></span>
+        </div>
+
+        <div class="zone gold-paid-zone">
+          <span class="zone-label">Pagado 💳</span>
+          <div class="cards-row">
+            @for (card of myGoldPaid(); track card.id) {
+              <div class="mini-card gold" (click)="selectCard(card)">
+                <div class="card-cost">{{ card.cost }}</div>
+              </div>
+            }
+            @if (myGoldPaid().length === 0) {
+              <div class="empty-slot"></div>
+            }
+          </div>
+        </div>
+
+        <div class="zone attack-line-zone">
+          <span class="zone-label">Ataque ⚔️</span>
+          <div class="cards-row">
+            @for (card of myAttackLine(); track card.id) {
+              <div class="mini-card" [class]="getTypeClass(card.type)" (click)="selectCard(card)">
+                <div class="card-cost">{{ card.cost }}</div>
+                <div class="card-name">{{ card.name }}</div>
+                @if (card.strength) {
+                  <div class="card-strength">{{ card.strength }}</div>
+                }
+              </div>
+            }
+            @if (myAttackLine().length === 0) {
+              <div class="empty-line-hint">Sin aliados</div>
+            }
+          </div>
+        </div>
+
+        <!-- Row 2: Cementerio - Castillo - Defensa -->
+        <div class="zone cementerio-zone">
+          <span class="zone-label">Cementerio 🪦</span>
+          <div class="cemetery-count">{{ myGraveyard().length }}</div>
+        </div>
+
+        <div class="zone castle-zone">
+          <span class="zone-label">Castillo 🏰</span>
+          <div class="deck-stack" (click)="drawCard()">
+            <div class="deck-card">🃏</div>
+            <span class="card-count">{{ myDeck().length }}</span>
+          </div>
+        </div>
+
+        <div class="zone defense-line-zone">
+          <span class="zone-label">Defensa 🛡️</span>
+          <div class="cards-row">
+            @for (card of myDefenseLine(); track card.id) {
+              <div class="mini-card" [class]="getTypeClass(card.type)" (click)="selectCard(card)">
+                <div class="card-cost">{{ card.cost }}</div>
+                <div class="card-name">{{ card.name }}</div>
+                @if (card.strength) {
+                  <div class="card-strength">{{ card.strength }}</div>
+                }
+              </div>
+            }
+            @if (myDefenseLine().length === 0) {
+              <div class="empty-line-hint">Sin aliados</div>
+            }
+          </div>
+        </div>
+
+        <!-- Row 3: Destierro - Reserva - Apoyo -->
+        <div class="zone destierro-zone">
+          <span class="zone-label">Destierro 🚫</span>
+          <div class="cards-row">
+            @for (card of myBanished(); track card.id) {
+              <div class="mini-card" [class]="getTypeClass(card.type)" (click)="selectCard(card)">
+                <div class="card-cost">{{ card.cost }}</div>
+                <div class="card-name">{{ card.name }}</div>
+              </div>
+            }
+            @if (myBanished().length === 0) {
+              <div class="empty-slot small"></div>
+            }
+          </div>
+        </div>
+
+        <div class="zone gold-reserve-zone">
+          <span class="zone-label">Reserva Oro 💰</span>
+          <div class="cards-row">
+            @for (card of myGoldReserve(); track card.id) {
+              <div class="mini-card gold" (click)="selectCard(card)">
+                <div class="card-cost">{{ card.cost }}</div>
+              </div>
+            }
+            @if (myGoldReserve().length < 3) {
+              <div class="empty-slot"></div>
+              @if (myGoldReserve().length < 2) {
+                <div class="empty-slot"></div>
+              }
+              @if (myGoldReserve().length < 1) {
+                <div class="empty-slot"></div>
+              }
+            }
+          </div>
+        </div>
+
+        <div class="zone support-line-zone">
+          <span class="zone-label">Apoyo (Tótems/Armas)</span>
+          <div class="cards-row">
+            @for (card of mySupportLine(); track card.id) {
+              <div class="mini-card" [class]="getTypeClass(card.type)" (click)="selectCard(card)">
+                <div class="card-cost">{{ card.cost }}</div>
+                <div class="card-name">{{ card.name }}</div>
+              </div>
+            }
+            @if (mySupportLine().length === 0) {
+              <div class="empty-line-hint">Sin tótems ni armas</div>
+            }
+          </div>
+        </div>
+      </div>
+
+      <!-- My hand -->
+      <div class="hand-zone">
+        <span class="zone-label">Tu Mano ({{ myHand().length }})</span>
+        <div class="hand-cards">
+          @for (card of myHand(); track card.id) {
+            <div class="hand-card" [class]="getTypeClass(card.type)" (click)="playCard(card)">
+              <div class="card-cost">{{ card.cost }}</div>
+              <div class="card-name">{{ card.name }}</div>
+              <div class="card-type-icon">{{ getTypeIcon(card.type) }}</div>
+              @if (card.strength) {
+                <div class="card-strength">{{ card.strength }}</div>
+              }
+            </div>
+          }
+        </div>
+      </div>
+    </section>
+  </div>
+
+  <!-- Action Bar -->
+  <footer class="action-bar">
+    <button class="action-btn" (click)="endTurn()">Finalizar Turno</button>
+    <div class="game-status">
+      @if (isMyTurn()) {
+        <span class="status your-turn">Tu Turno</span>
+      } @else {
+        <span class="status opponent-turn">Turno del oponente</span>
+      }
+    </div>
+  </footer>
+</div>
